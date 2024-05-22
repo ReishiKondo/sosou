@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi Up-Down Counters</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: Arial, sans-serif;
+      }
+      .counter-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .counter {
+        font-size: 2em;
+        margin: 10px;
+      }
+      button {
+        font-size: 1em;
+        margin: 5px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="counters"></div>
+
+    <script>
+      const counterContainer = document.getElementById('counters');
+      const counterCount = 25;
+
+      for (let i = 0; i < counterCount; i++) {
+        const counterDiv = document.createElement('div');
+        counterDiv.className = 'counter-container';
+        counterDiv.innerHTML = `
+                <div>Counter ${i + 1}</div>
+                <div id="counter-${i}" class="counter">0</div>
+            `;
+        counterContainer.appendChild(counterDiv);
+      }
+
+      for (let i = 0; i < counterCount; i++) {
+        const counterElement = document.getElementById(`counter-${i}`);
+        const incrementButton = document.getElementById(`increment-${i}`);
+        const decrementButton = document.getElementById(`decrement-${i}`);
+
+        let counterValue = localStorage.getItem(`counter-${i}`) ? parseInt(localStorage.getItem(`counter-${i}`)) : 0;
+        counterElement.textContent = counterValue;
+      }
+    </script>
+  </body>
+</html>
