@@ -1,14 +1,14 @@
 {
-  "counter1": 28,
-  "counter2": 23,
-  "counter3": 2,
-  "counter4": 11,
-  "counter5": 0,
+  "counter1": 12,
+  "counter2": 2,
+  "counter3": 11,
+  "counter4": 6,
+  "counter5": 2,
   "counter6": 0,
   "counter7": 0,
   "counter8": 0,
   "counter9": 0,
-  "counter10": 11,
+  "counter10": 0,
   "counter11": 0,
   "counter12": 0,
   "counter13": 0,
@@ -23,6 +23,5 @@
   "counter22": 0,
   "counter23": 0,
   "counter24": 0,
-  "counter25": 0,
-  "counter0": null
+  "counter25": 0
 }

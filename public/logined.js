@@ -1,4 +1,5 @@
-window.onload = async () => {
+
+async function reloadCount() {
     let response = await fetch('/get-count');
     console.log(response);
     let reply = await response.json();
@@ -10,7 +11,12 @@ window.onload = async () => {
 
 
 
+window.onload = async () => {
+    reloadCount();
+}
 
+const reloadButton = document.getElementById("reload");
+reloadButton.addEventListener("click", async () => { reloadCount() });
 
 
 const counterContainer = document.getElementById('counters');
@@ -37,74 +43,29 @@ for (let i = 0; i < counterCount; i++) {
     counterElement.textContent = counterValue;
 
     incrementButton.addEventListener('click', () => {
-        sendData(`${i + 1}`, 0)
+        renewCount(`${i + 1}`, 0);
     });
 
     decrementButton.addEventListener('click', () => {
-        counterValue--;
-        counterElement.textContent = counterValue;
-        localStorage.setItem(`counter-${i}`, counterValue);
+        renewCount(`${i + 1}`, 1);
     });
 }
 
-async function sendData() {
+async function renewCount(id, upDown01) {
     try {
-        const response = await fetch('http://localhost:8000/', {
+        const response = await fetch('/renew-count', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-
             },
-            body: JSON.stringify({ counter_id: 2, upDown: 0 })
+            body: JSON.stringify({ counter_id: id, upDown: upDown01 })
         });
 
         const data = await response.json();
         console.log(data); // サーバーからのレスポンスデータにアクセスできます
+        await reloadCount();
     } catch (error) {
         console.error('Error:', error);
     }
 }
 
-
-
-// PUTリクエストを送信
-document.getElementById('myButton').addEventListener('click', () => sendData());
-
-
-
-{/* <script>
-    
-
-
-
-
-    const element = document.getElementById("update-target");
-
-
-
-    async function sendData(id, upDown) {
-      try {
-        const requestBody = {
-          counter_id: id, // 変数の値を使って counter_id の値を設定
-          upDown: upDown
-        };
-        console.log(requestBody);
-
-        const response = await fetch('http://localhost:8000/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-
-          },
-          body: JSON.stringify(requestBody)
-        });
-
-        const data = await response.json();
-        console.log(data); // サーバーからのレスポンスデータにアクセスできます
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-  </script> */}

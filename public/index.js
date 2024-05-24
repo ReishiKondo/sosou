@@ -1,4 +1,5 @@
-window.onload = async () => {
+
+async function reloadCount() {
     let response = await fetch('/get-count');
     console.log(response);
     let reply = await response.json();
@@ -7,6 +8,15 @@ window.onload = async () => {
         document.querySelector(`#counter-${i}`).innerText = reply[`counter${i + 1}`];
     }
 }
+
+
+
+window.onload = async () => {
+    reloadCount();
+}
+
+const reloadButton = document.getElementById("reload");
+reloadButton.addEventListener("click", async () => { reloadCount() });
 
 
 const counterContainer = document.getElementById('counters');
@@ -28,14 +38,8 @@ for (let i = 0; i < counterCount; i++) {
 
     async () => {
         const counterElement = document.getElementById(`counter-${i}`);
-        const incrementButton = document.getElementById(`increment-${i}`);
-        const decrementButton = document.getElementById(`decrement-${i}`);
-
-        //let counterValue = localStorage.getItem(`counter-${i}`) ? parseInt(localStorage.getItem(`counter-${i}`)) : 0;
-        //counterElement.textContent = counterValue;
         const response = await fetch(`/counter-value${i + 1}`);
         console.log("test");
-        //document.querySelector(`#counter-value${i}`).innerText = await response.text();
         counterElement.textContent = await response.text();
     }
 

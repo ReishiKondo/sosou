@@ -14,64 +14,59 @@ const server = serve(async (req) => {
     return counters;
   }
 
+  async function writeCounterValue(counters) {
+    const filePath = './public/example.json';
+    const updatedJsonData = JSON.stringify(counters, null, 2);
+    // JSONファイルに書き込む
+    await Deno.writeTextFile(filePath, updatedJsonData);
+  }
+
   const path = new URL(req.url).pathname;
   console.log("path", path);
 
   if (req.method === 'GET' && path === '/get-count') {
-    let test = await loadCounterValue();
-    console.log(test);
-    return new Response(JSON.stringify(test));
+    let tmp = await loadCounterValue();
+    return new Response(JSON.stringify(tmp));
 
   }
 
 
-
   if (req.method === "POST") {
+    if (path === '/renew-count') {
+      try {
+        let uint8Array;
+        const body = req.body; // リクエストのボディデータを取得
+        for await (const chunk of body) {
+          uint8Array = chunk;
+        }
+        const jsonString = new TextDecoder().decode(uint8Array);
+        console.log(jsonString); // {"counter_id":1,"upDown":0}
+        const getData = JSON.parse(jsonString);
+        console.log("countID", getData.counter_id);
+        let counters = await loadCounterValue();
+        if (getData.upDown === 0) {
+          counters[`counter${getData.counter_id}`]++;
+        } else if (getData.upDown === 1) {
+          counters[`counter${getData.counter_id}`]--;
+        }
 
-    // example_read.ts
 
-    try {
-      const data = await Deno.readTextFile(filePath);
-      const counters = JSON.parse(data);
+        console.log("result of renew ", counters[`counter${getData.counter_id}`]);
+        writeCounterValue(counters);
+        console.log('カウンターの値を更新しました');
+        const responseData = {
+          message: "User data retrieved successfully",
+          user: 3
+        };
 
-      let uint8Array;
-      const body = req.body; // リクエストのボディデータを取得
-      for await (const chunk of body) {
-        uint8Array = chunk;
+        // レスポンスを返す
+        return new Response(JSON.stringify(responseData));
+      } catch (error) {
+        console.error('エラーが発生しました:', error);
       }
-      const jsonString = new TextDecoder().decode(uint8Array);
-
-      console.log(jsonString); // {"counter_id":1,"upDown":0}
-      const getData = JSON.parse(jsonString);
-      console.log("countID", getData.counter_id);
-      counters[`counter${getData.counter_id}`]++;
-      console.log("result of renew counter1", counters.counter1);
-      const updatedJsonData = JSON.stringify(counters, null, 2);
-      // JSONファイルに書き込む
-      await Deno.writeTextFile(filePath, updatedJsonData);
-      console.log('カウンターの値を更新しました');
-      const responseData = {
-        message: "User data retrieved successfully",
-        user: 3
-      };
-
-      // レスポンスを返す
-      req.respond({ body: JSON.stringify(responseData) });
-    } catch (error) {
-      console.error('エラーが発生しました:', error);
     }
 
-    /* const form = await req.formData();
-    await client.queryObject(
-      "insert into Comments (name, comment) values ($1, $2)",
-      [form.get("name"), form.get("comment")],
-    );
-    return new Response("", {
-      status: 303,
-      headers: {
-        Location: "/",
-      },
-    }); */
+
   }
 
 
@@ -83,4 +78,3 @@ const server = serve(async (req) => {
   });
 });
 
-console.log(`HTTP server is running on http://localhost:${port}/`);
