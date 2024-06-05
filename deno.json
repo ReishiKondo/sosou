@@ -1,5 +1,6 @@
 {
   "tasks": {
-    "start": "deno run -A server.js"
+    "start": "deno run -A server.js",
+    "test": "deno run --watch --allow-net --allow-read --allow-write server.js"
   }
 }
