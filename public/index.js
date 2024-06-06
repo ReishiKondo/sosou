@@ -1,12 +1,18 @@
 
 async function reloadCount() {
-    let response = await fetch('/get-count');
-    console.log(response);
-    let reply = await response.json();
-    console.log(reply);
-    for (let i = 0; i < 25; i++) {
-        document.querySelector(`#counter-${i}`).innerText = reply[`counter${i + 1}`];
+    try {
+        let response = await fetch('/get-count');
+        console.log(response);
+        let reply = await response.json();
+        console.log(reply);
+        for (let i = 0; i < 25; i++) {
+            document.querySelector(`#counter-${i}`).innerText = reply[`counter${i + 1}`];
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert("Faild to fetch counter value")
     }
+
 }
 
 
