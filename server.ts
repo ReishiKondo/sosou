@@ -1,6 +1,6 @@
 import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
 
-async function loadCounterValue() {
+async function loadCounterValue(): Promise<string> {
   const filePath = "./public/example.json";
   const data = await Deno.readTextFile(filePath);
   const counters = JSON.parse(data);
@@ -30,9 +30,52 @@ Deno.serve(async (req) => {
     }
   }
 
-  if (req.method === "GET" && path === "/get-count") {
-    const tmp = await loadCounterValue();
-    return new Response(JSON.stringify(tmp));
+  if (req.method === "GET") {
+    if (path === "/get-count") {
+      const tmp = await loadCounterValue();
+      return new Response(JSON.stringify(tmp));
+    }
+    if (path === "/renew-count") {
+      try {
+        let uint8Array;
+        const body = req.body;
+        if (body !== null) {
+          for await (const chunk of body) {
+            uint8Array = chunk;
+          }
+        } else {
+          throw new Error("Body is null!");
+        }
+
+        const jsonString = new TextDecoder().decode(uint8Array);
+        console.log(jsonString); // {"counter_id":1,"upDown":0}
+        const getData = JSON.parse(jsonString);
+        console.log("countID", getData.counter_id);
+        const counters = await loadCounterValue();
+        const selectedCounterID = `counter${getData.counter_id}`;
+        if (getData.upDown === 0) {
+          counters[selectedCounterID]++;
+        } else if (getData.upDown === 1) {
+          counters[selectedCounterID]--;
+        }
+
+        console.log(
+          "result of renew ",
+          counters[selectedCounterID],
+        );
+        writeCounterValue(counters);
+        console.log("カウンターの値を更新しました");
+        const responseData = {
+          message: "User data retrieved successfully",
+          user: 3,
+        };
+
+        // レスポンスを返す
+        return new Response(JSON.stringify(responseData));
+      } catch (error) {
+        console.error("エラー発生", error);
+      }
+    }
   }
 
   // publicフォルダ内にあるファイルを返す
