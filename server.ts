@@ -1,13 +1,13 @@
 import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
-
-async function loadCounterValue(): Promise<string> {
+const DEBUG = false;
+async function loadCounterValue(): Promise<{ [key: string]: number }> {
   const filePath = "./public/example.json";
   const data = await Deno.readTextFile(filePath);
   const counters = JSON.parse(data);
   return counters;
 }
 
-async function writeCounterValue(counters: string) {
+async function writeCounterValue(counters: { [key: string]: number }) {
   const filePath = "./public/example.json";
   const updatedJsonData = JSON.stringify(counters, null, 2);
   // JSONファイルに書き込む
@@ -15,7 +15,6 @@ async function writeCounterValue(counters: string) {
 }
 
 Deno.serve(async (req) => {
-  const DEBUG: number = 0;
   const url = new URL(req.url);
   const path = new URL(req.url).pathname;
 
@@ -52,6 +51,7 @@ Deno.serve(async (req) => {
         const getData = JSON.parse(jsonString);
         console.log("countID", getData.counter_id);
         const counters = await loadCounterValue();
+
         const selectedCounterID = `counter${getData.counter_id}`;
         if (getData.upDown === 0) {
           counters[selectedCounterID]++;
