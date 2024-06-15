@@ -1,21 +1,19 @@
-import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
-import { serveDir } from 'https://deno.land/std@0.224.0/http/file_server.ts';
-import { decode } from "https://deno.land/x/utf8/mod.js";
+// import { serveDir } from 'https://deno.land/std@0.224.0/http/file_server.ts';
+// import { decode } from "https://deno.land/x/utf8/mod.js";
 //import { parse } from "https://deno.land/std/encoding/yaml.ts";
-import { renderFile } from "https://deno.land/x/eta@v1.12.3/mod.ts";
+// import { renderFile } from "https://deno.land/x/eta@v1.12.3/mod.ts";
 
-const port = 8000;
-const server = serve(async (req) => {
-
+//const port: number = 8000;
+const server = Deno.serve(async (req) => {
   async function loadCounterValue() {
-    const filePath = './public/example.json';
+    const filePath = "./public/example.json";
     const data = await Deno.readTextFile(filePath);
     const counters = JSON.parse(data);
     return counters;
   }
 
   async function writeCounterValue(counters) {
-    const filePath = './public/example.json';
+    const filePath = "./public/example.json";
     const updatedJsonData = JSON.stringify(counters, null, 2);
     // JSONファイルに書き込む
     await Deno.writeTextFile(filePath, updatedJsonData);
@@ -24,15 +22,13 @@ const server = serve(async (req) => {
   const path = new URL(req.url).pathname;
   console.log("path", path);
 
-  if (req.method === 'GET' && path === '/get-count') {
+  if (req.method === "GET" && path === "/get-count") {
     let tmp = await loadCounterValue();
     return new Response(JSON.stringify(tmp));
-
   }
 
-
   if (req.method === "POST") {
-    if (path === '/renew-count') {
+    if (path === "/renew-count") {
       try {
         let uint8Array;
         const body = req.body; // リクエストのボディデータを取得
@@ -50,31 +46,29 @@ const server = serve(async (req) => {
           counters[`counter${getData.counter_id}`]--;
         }
 
-
-        console.log("result of renew ", counters[`counter${getData.counter_id}`]);
+        console.log(
+          "result of renew ",
+          counters[`counter${getData.counter_id}`],
+        );
         writeCounterValue(counters);
-        console.log('カウンターの値を更新しました');
+        console.log("カウンターの値を更新しました");
         const responseData = {
           message: "User data retrieved successfully",
-          user: 3
+          user: 3,
         };
 
         // レスポンスを返す
         return new Response(JSON.stringify(responseData));
       } catch (error) {
-        console.error('エラーが発生しました:', error);
+        console.error("エラーが発生しました:", error);
       }
     }
-
-
   }
 
-
   return serveDir(req, {
-    fsRoot: 'public',
-    urlRoot: '',
+    fsRoot: "public",
+    urlRoot: "",
     showDirListing: true,
     enableCors: true,
   });
 });
-
