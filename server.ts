@@ -1,11 +1,8 @@
 import { serveDir } from "https://deno.land/std@0.224.0/http/file_server.ts";
 const DEBUG = false;
-async function loadCounterValue(): Promise<{ [key: string]: number }> {
-  const filePath = "./public/example.json";
-  const data = await Deno.readTextFile(filePath);
-  const counters = JSON.parse(data);
-  return counters;
-}
+const loadCounterValue = async (): Promise<{ [key: string]: number }> =>
+  await Deno.readTextFile("./public/example.json")
+    .then((data) => JSON.parse(data));
 
 async function writeCounterValue(counters: { [key: string]: number }) {
   const filePath = "./public/example.json";
@@ -30,9 +27,13 @@ Deno.serve(async (req) => {
   }
 
   if (req.method === "GET") {
-    if (path === "/get-count") {
-      const tmp = await loadCounterValue();
-      return new Response(JSON.stringify(tmp));
+    try {
+      if (path === "/get-count") {
+        const tmp = await loadCounterValue();
+        return new Response(JSON.stringify(tmp));
+      }
+    } catch (error) {
+      console.error("GETメソッド中にエラーが発生", error);
     }
   } else if (req.method === "POST") {
     if (path === "/renew-count") {
