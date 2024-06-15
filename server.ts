@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
       const tmp = await loadCounterValue();
       return new Response(JSON.stringify(tmp));
     }
+  } else if (req.method === "POST") {
     if (path === "/renew-count") {
       try {
         let uint8Array;
